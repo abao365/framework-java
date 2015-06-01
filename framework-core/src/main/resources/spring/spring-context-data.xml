@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:tool="http://www.springframework.org/schema/tool" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+	 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd  
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd  
+     http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd  
+     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd  
+     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd  
+     http://www.springframework.org/schema/tool http://www.springframework.org/schema/tool/spring-tool.xsd"
+	default-lazy-init="false" default-autowire="byName">
+
+	<bean id="demoDataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close"> 
+      <!-- 基本属性 url、user、password -->
+      <property name="url" value="${common.db.demo.url}" />
+      <property name="username" value="${common.db.demo.username}" />
+      <property name="password" value="${common.db.demo.password}" />
+      <!-- 配置初始化大小、最小、最大 -->
+      <property name="initialSize" value="${common.db.demo.initialSize}" />
+      <property name="minIdle" value="${common.db.demo.min}" /> 
+      <property name="maxActive" value="${common.db.demo.max}" />
+      <!-- 配置获取连接等待超时的时间 -->
+      <property name="maxWait" value="60000" />
+      <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+      <property name="timeBetweenEvictionRunsMillis" value="60000" />
+      <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+      <property name="minEvictableIdleTimeMillis" value="300000" />
+      <property name="validationQuery" value="SELECT 'x'" />
+      <property name="testWhileIdle" value="true" />
+      <property name="testOnBorrow" value="false" />
+      <property name="testOnReturn" value="false" />
+      <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+      <property name="poolPreparedStatements" value="true" />
+      <property name="maxPoolPreparedStatementPerConnectionSize" value="20" />
+      <!-- 配置监控统计拦截的filters -->
+      <property name="filters" value="stat" /> 
+  	</bean>
+	
+	<bean id="demoDataSourceProxy" class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
+		<property name="targetDataSource" ref="demoDataSource" />
+	</bean>
+
+	<bean id="demoJdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<constructor-arg ref="demoDataSourceProxy" />
+	</bean>
+	
+	<bean id="demoNamedParameterJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+    	<constructor-arg ref="demoDataSourceProxy" />
+	</bean>
+	
+	<!-- 事务管理 -->
+	<bean id="demoTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="demoDataSourceProxy"/>
+	</bean>
+	
+	<!-- 2、配置拦截规则 -->
+	<bean id="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+		<property name="transactionManager" ref="demoTransactionManager" />
+		<!-- 配置事务属性 -->
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED,-Exception</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- 配置拦截器 -->
+	<bean
+		class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+		<property name="beanNames">
+			<list>
+				<value>*Service</value>
+			</list>
+		</property>
+		<property name="interceptorNames">
+			<list>
+				<value>transactionInterceptor</value>
+			</list>
+		</property>
+	</bean>
+	
+	
+	
+</beans>

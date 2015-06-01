@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 对应接口地址 -->
+<mapper namespace="cn.abao365.modules.demo.dao.DemoDao">
+
+	<!-- 
+		sql语句和实体对象的映射关系
+		type = "cn.abao365.modules.demo.entity.Demo" 返回的实体
+	 -->
+	<resultMap type="cn.abao365.modules.demo.entity.Demo" id="resultDemo">
+		<result property="uuid" column="_uuid" />
+		<result property="userName" column="_user_name" />
+		<result property="password" column="_password" />
+		<result property="sex" column="_sex"  />
+		<result property="age" column="_age" />
+		<result property="createTime" column="_create_time" />
+	</resultMap>
+	
+	<!-- 基础sql -->
+	<sql id="findAllSQL">
+		SELECT _uuid,_user_name,_password,_age,_sex,_create_time from demo_user
+	</sql>
+
+	<!-- 查询条件 -->
+	<sql id="findAllWhere">
+		<where>
+			<if test="uuid != null and uuid != '' ">
+				and _uuid=#{uuid}
+			</if>
+			<!-- like需要注意的地方 -->
+			<if test="userName != null and userName != ''">
+				and _user_name like CONCAT('%',#{userName},'%')
+			</if>
+			<if test="sex != null and sex != '' ">
+				and _sex=#{sex}
+			</if>
+		</where>
+	</sql>
+	
+	<!-- 排序条件 -->
+	<sql id="findOrderBy">
+		ORDER BY _create_time desc
+	</sql>
+	
+	<!-- 分页 -->
+	<sql id="findLimit">
+		LIMIT #{startRowNum},#{pageSize}
+	</sql>
+	
+	
+	<!-- 
+		id=cn.abao365.modules.demo.dao.DemoDao.findDemoByVO 执行key
+		parameterType="cn.abao365.modules.demo.vo.DemoVO" 接收的参数类型 
+		resultMap 返回的结果
+	 -->
+	<select id="findDemoByVO" parameterType="cn.abao365.modules.demo.vo.DemoVO" resultMap="resultDemo">
+		<include refid="findAllSQL"></include>
+		<include refid="findAllWhere"></include>
+		<include refid="findOrderBy"></include>
+	</select>
+	
+	<!-- 统计符合条件的数量 -->
+	<select id="findDemoTotalRowsByVO" parameterType="cn.abao365.modules.demo.vo.DemoVO"
+		resultType="java.lang.Long">
+		select count(*)  from demo_user
+		<include refid="findAllWhere" />
+	</select>
+	
+	
+	<select id="findDemoTotalRows" resultType="java.lang.Long">
+		select count(*)  from demo_user
+	</select>
+	
+	
+	<select id="findAllDemo" parameterType="cn.abao365.modules.demo.vo.DemoVO" resultMap="resultDemo">
+		<include refid="findAllSQL"></include>
+		<include refid="findOrderBy"></include>
+	</select>
+	
+	<select id="findDemoPageByVO" parameterType="cn.abao365.modules.demo.vo.DemoVO" resultMap="resultDemo">
+		<include refid="findAllSQL"></include>
+		<include refid="findOrderBy"></include>
+		<include refid="findLimit"></include>
+	</select>
+	
+	<select id="getDemoById" parameterType="java.lang.String" resultMap="resultDemo">
+		<include refid="findAllSQL"></include>
+		where _uuid = #{uuid}
+	</select>
+	
+
+	<!-- 添加示例 -->
+	<insert id="saveDemo" parameterType="cn.abao365.modules.demo.vo.DemoVO">
+		INSERT INTO demo_user(_uuid,_user_name,_password,_age,_sex,_create_time) 
+		VALUES(#{uuid},#{userName},#{password},#{age},#{sex},#{createTime})
+	</insert>
+	
+	
+	<!--修改示例 通过Id -->
+	<update id="updateDemoById" parameterType="cn.abao365.modules.demo.vo.DemoVO">
+		UPDATE demo_user SET _user_name=#{userName},_password=#{password},_age=#{age},_sex=#{sex} WHERE _uuid=#{uuid}
+	</update>
+	
+	<!-- 删除示例 -->
+	<delete id="deleteDemoById" parameterType="java.lang.String">
+		delete from demo_user where _uuid = #{uuid}
+	</delete>
+	
+</mapper>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Config>
+	<encoding>UTF-8</encoding>
+	<appName>事例程序</appName>
+	<!-- 通用配置 -->
+	<common>
+		<!-- 数据库连接 -->
+		<db>
+			<demo>
+				<!-- 数据库连接URL，ip为mysql所在服务器ip，weather是库名 -->
+				<url>jdbc:mysql://localhost:3306/demo_test?useUnicode=true&amp;characterEncoding=utf8</url>
+				<!-- 用户名 -->
+				<username>root</username>
+				<!-- 密码 -->
+				<password>rts_123</password>
+				<!-- 初始大小 -->
+				<initialSize>1</initialSize>
+				<!-- 最大连接数 -->
+				<max>1</max>
+				<!-- 最小连接数 -->
+				<min>1</min>
+			</demo>
+		</db>
+		<!-- 缓存配置 -->
+		<cache>
+			
+			<memcache>
+				<!-- 公共memcache -->
+				<demo>
+					<nodelist>localhost:11211,localhost:11212,localhost:11211</nodelist>
+					<poolsize>50</poolsize>
+				</demo>
+			</memcache>
+			
+			<mongodb>
+				<demo>
+			    	<nodelist>localhost:40001</nodelist>
+			    	<dbname>image</dbname>
+		    	</demo>
+	    	</mongodb>
+	    	
+		</cache>
+		
+	</common>
+	<jobs>
+	</jobs>
+	
+	<!-- web成配置 -->
+	<sui>
+		<urls>
+			
+		</urls>
+	</sui>
+	
+	<!-- service层配置 -->
+	<sas>
+		<mail>
+			<!-- 错误监控，固定写法， -->
+			<log>
+				<to>chengwenfeng@chinaso.com</to>
+			</log>
+		</mail>
+	</sas>
+</Config>
